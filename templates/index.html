@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</head>
+<body>
+
+    <h1>Submit Form</h1>
+
+    <div class="container">
+        <form id="post-form" method="post">
+            <div class="row">
+                {% csrf_token %}
+                <input type="text" class="form-control" name="name" id="name" placeholder="Name">
+              </div>
+              <div class="row">
+                <input type="email" class="form-control" name="email" id="email" placeholder="Email">
+              </div>
+              <div class="row">
+                <input type="text" class="form-control" name="bio" id="bio" placeholder="Bio">
+              </div>
+              
+              <div class="row">
+                <button type="submit" class="btn btn-outline-success">Submit</button>
+              </div>
+          </form>
+    </div>
+
+
+    
+    <script>
+        $(document).on('submit', '#post-form', function(e){
+
+            e.preventDefault();
+
+                $.ajax({
+                    type : 'POST',
+                    url : "/create",
+                    data : {
+                        name : $('#name').val(),
+                        email : $('#email').val(),
+                        bio : $('#bio').val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                    },
+                    success : function(data){
+                        // alert(data);
+                    }
+                })
+            });
+    </script>
+    <br><br><br>
+    <h1>List Of Live Data</h1>
+<!-- 
+    <ul id="display-data">
+
+    </ul> -->
+
+      <table class="table table-striped" >
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+          </tr>
+        </thead>
+        <tbody id="table-data">
+        </tbody>
+      </table>
+
+    <script>
+        $(document).ready(function(){
+            setInterval(function(){
+                $.ajax({
+                    type : 'GET',
+                    url : "{% url 'getProfiles' %}",
+                    data : {
+                        
+                    },
+                    success : function(response){
+                        // console.log(response);
+                        $('#table-data').empty();
+                        var data ;
+                        for (var key in response.profiles){
+                            var id = '<th scope="row">'+response.profiles[key].id+'</th>' ;
+                            var name = '<td>'+response.profiles[key].name+'</td>' ;
+                            var email = '<td>'+response.profiles[key].email+'</td>' ;
+                            var bio = '<td>'+response.profiles[key].bio+'</td>' ;
+                            data = '<tr>'+id+name+email+bio+'</tr>' ;
+                            $('#table-data').append(data)
+                        }
+                    },
+                    error : function(response){
+                        alert("An Error Occured");
+                    }
+                });
+            },1000)
+        });
+    </script>
+    
+</body>
+</html>
